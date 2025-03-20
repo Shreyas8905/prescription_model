@@ -2,6 +2,10 @@ import cv2
 import numpy as np
 from joblib import dump, load
 import os
+import cv2
+import pytesseract
+from PIL import Image
+from opencv3 import CV
 def extract_features(img):
     arr = []
     rows, cols = img.shape[:2]
@@ -79,6 +83,18 @@ def classify_image(filename, model_path="data.joblib"):
     output_path = "classified_output.png"
     cv2.imwrite(output_path, img)
     print(f"Classification completed. Results saved to '{output_path}'")
-if __name__ == "__main__":
-    image_path = "image.png"
-    classify_image(image_path)
+image_path = "image.png"
+classify_image(image_path)
+image_path = "image.png"
+image = cv2.imread(image_path)
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+_, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
+text = pytesseract.image_to_string(thresh, lang='eng')
+lines = text.split("\n")
+medicine_list = []
+for line in lines:
+    if any(unit in line.lower() for unit in ["mg", "ml", "tab", "caps", "tablet", "capsule"]):
+        medicine_list.append(line.strip())
+print(line)
+print("Extracted Text: ")
+print(CV.extracted_text)

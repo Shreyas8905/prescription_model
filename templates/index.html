@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Classification and Content Extraction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result-section {
+            margin-top: 20px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Image for Classification and Content Extraction</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="imageInput" name="image" accept="image/*" required />
+            <button type="button" onclick="uploadImage()">Upload & Process</button>
+        </form>
+
+        <div id="results" class="hidden">
+            <div class="result-section">
+                <h3>Uploaded Image:</h3>
+                <img id="uploadedImage" src="#" alt="Uploaded Image" />
+            </div>
+
+            <div class="result-section">
+                <h3>Classified Image:</h3>
+                <img id="classifiedImage" src="#" alt="Classified Image" />
+            </div>
+
+            <div class="result-section">
+                <h3>Extracted Content:</h3>
+                <ul id="extractedText"></ul>
+                <ul id="extractedText1"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function uploadImage() {
+            const formData = new FormData();
+            const fileInput = document.getElementById("imageInput");
+            
+            if (!fileInput.files.length) {
+                alert("Please select an image to upload.");
+                return;
+            }
+
+            formData.append("image", fileInput.files[0]);
+
+            fetch("/", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json(); // Expecting JSON from Flask
+                } else {
+                    throw new Error("Error processing the image.");
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    // Show uploaded image
+                    document.getElementById("uploadedImage").src = `/uploads/${data.uploaded_img}`;
+                    document.getElementById("classifiedImage").src = data.result_img;
+
+                    // Display extracted content
+                    const textList = document.getElementById("extractedText");
+                    textList.innerHTML = "";
+                    data.extracted_text.forEach(line => {
+                        const li = document.createElement("li");
+                        li.textContent = line;
+                        textList.appendChild(li);
+                    });
+
+                    document.getElementById("results").classList.remove("hidden");
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while processing the image.");
+            });
+        }
+    </script>
+</body>
+</html>
