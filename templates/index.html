@@ -3,54 +3,347 @@
 <head>
     <title>Image Classification and Content Extraction</title>
     <style>
+        :root {
+            --primary-color: #00a0c6;
+            --primary-light: #39c8eb;
+            --primary-dark: #0078a3;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-color: #1e293b;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
             margin: 0;
             padding: 0;
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: var(--transition);
         }
+        
         .container {
-            max-width: 700px;
+            max-width: 800px;
             margin: 50px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
         }
+        
+        .container:hover {
+            box-shadow: 0 15px 30px -5px rgba(0, 160, 198, 0.2);
+        }
+        
         h1 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 28px;
+            position: relative;
+            padding-bottom: 12px;
         }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary-light), var(--primary-color), var(--primary-light));
+            border-radius: 3px;
+        }
+        
         form {
             text-align: center;
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .file-input-container {
+            position: relative;
+            width: 70%;
             margin-bottom: 20px;
         }
+        
         input[type="file"] {
-            margin-bottom: 10px;
+            position: relative;
+            padding: 15px;
+            width: 100%;
+            border: 2px dashed var(--primary-color);
+            border-radius: var(--border-radius);
+            background-color: rgba(0, 160, 198, 0.05);
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 2;
         }
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
+        
+        input[type="file"]::file-selector-button {
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
+            padding: 8px 16px;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        input[type="file"]::file-selector-button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        input[type="file"]:hover {
+            background-color: rgba(0, 160, 198, 0.1);
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+        
+        .file-upload-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--primary-color);
+            opacity: 0.2;
+            font-size: 30px;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        button {
+            padding: 14px 28px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0, 160, 198, 0.2);
+            position: relative;
+            overflow: hidden;
+            border-top:20px;
+        }
+        
+        button:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 160, 198, 0.3);
+            border-top:20px;
+        }
+        
+        button:active {
+            transform: translateY(-1px);
+            border-top:20px;
+        }
+        
+        button::after {
+            border-top:20px;
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: -100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        button:hover::after {
+            left: 100%;
+            border-top:20px;
+        }
+        
+        .result-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(248, 250, 252, 0.5);
+            border-radius: var(--border-radius);
+            border: 1px solid #e2e8f0;
+            transition: var(--transition);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideIn 0.5s forwards;
+        }
+        
+        @keyframes slideIn {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .result-section:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 8px rgba(0, 160, 198, 0.1);
+        }
+        
+        .result-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 500;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+        
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--border-radius);
             cursor: pointer;
         }
-        button:hover {
-            background-color: #45a049;
-        }
-        .result-section {
-            margin-top: 20px;
-        }
+        
         img {
             max-width: 100%;
             height: auto;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius);
             margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            display: block;
         }
+        
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 160, 198, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .image-container:hover img {
+            transform: scale(1.03);
+        }
+        
+        .image-container:hover .image-overlay {
+            opacity: 1;
+        }
+        
         .hidden {
             display: none;
+        }
+        
+        #extractedText, #extractedText1 {
+            padding-left: 20px;
+            list-style-type: none;
+        }
+        
+        #extractedText li, #extractedText1 li {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            background-color: rgba(0, 160, 198, 0.05);
+            border-radius: 8px;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+            position: relative;
+            transform: translateX(20px);
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+            animation-delay: calc(var(--item-index) * 0.1s);
+        }
+        
+        @keyframes fadeIn {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        #extractedText li:hover, #extractedText1 li:hover {
+            background-color: rgba(0, 160, 198, 0.1);
+            border-left-color: var(--primary-color);
+            transform: translateX(5px);
+        }
+        
+        #weblink {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+            padding: 8px 16px;
+            border-radius: 6px;
+        }
+        
+        #weblink:hover {
+            color: var(--primary-light);
+            background-color: rgba(0, 160, 198, 0.05);
+        }
+        
+        /* Loading indicator */
+        .loader {
+            display: none;
+            margin: 20px auto;
+            width: 48px;
+            height: 48px;
+            border: 5px solid rgba(0, 160, 198, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+        
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
         }
     </style>
 </head>
