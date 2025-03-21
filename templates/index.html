@@ -79,10 +79,8 @@
                 <ul id="extractedText1"></ul>
                 <ul id="extractedText1"></ul>
             </div>
-
         </div>
     </div>
-
     <script>
         function uploadImage() {
             const formData = new FormData();
@@ -92,27 +90,22 @@
                 alert("Please select an image to upload.");
                 return;
             }
-
             formData.append("image", fileInput.files[0]);
-
             fetch("/", {
                 method: "POST",
                 body: formData
             })
             .then(response => {
                 if (response.ok) {
-                    return response.json(); // Expecting JSON from Flask
+                    return response.json();
                 } else {
                     throw new Error("Error processing the image.");
                 }
             })
             .then(data => {
                 if (data.success) {
-                    // Show uploaded image
                     document.getElementById("uploadedImage").src = `/uploads/${data.uploaded_img}`;
                     document.getElementById("classifiedImage").src = data.result_img;
-
-                    // Display extracted content
                     const textList = document.getElementById("extractedText");
                     textList.innerHTML = "";
                     data.extracted_text.forEach(line => {
@@ -120,7 +113,6 @@
                         li.textContent = line;
                         textList.appendChild(li);
                     });
-
                     document.getElementById("results").classList.remove("hidden");
                 } else {
                     alert("Error: " + data.error);
