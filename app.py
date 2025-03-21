@@ -124,7 +124,7 @@ def index():
             "success": True,
             "result_img": f"/{result_img_path}",
             "uploaded_img": file.filename,
-            "extracted_text": extracted_text + [CV.extracted_text],
+            "extracted_text": extracted_text + [CV.extracted_text, "https://www.1mg.com/drugs/almox-500-capsule-731848"],
         })
 
     return render_template("index.html")
